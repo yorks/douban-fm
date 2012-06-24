@@ -26,6 +26,8 @@ if not os.path.exists(SAVE_MP3_DIR):
 if not os.path.exists(ALBUM_PIC_DIR):
     os.makedirs(ALBUM_PIC_DIR)
 
+CACHE_MAX_SIZE=1 * 1024 * 1024 * 1024 # 1G
+
 class DOUBAN_DLG(QtGui.QMainWindow):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
@@ -46,6 +48,7 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         self.user_record={}
         self.check_song_list_t = None
         self.check_song_end_t = None
+        self.check_cache_t = None
         self.max_volume = 65535
         self.fm = None
 
@@ -152,7 +155,8 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             QtGui.QMessageBox.information(None, u"登录失败", u'登录失败', u"确定")
 
     def play_pause(self):
-        if self.playing_clip:
+        """ play_pause   PAUSE / UNPAUSE / PLAY(first login) """
+        if self.playing_clip: # PAUSE / UNPAUSE
             if not self.playing_clip.is_playing() and not self.playing_clip.is_paused():
                 self.play_next()
             elif self.playing_clip.is_paused():
@@ -163,7 +167,7 @@ class DOUBAN_DLG(QtGui.QMainWindow):
                 self.ui.pB_play_pause.setText(u'Play')
             else:
                 pass
-        else:
+        else: # PLAY(first login)
             self.__play__()
             time.sleep(0.5)
             self.check_song_list_t = MY_THREAD(self.check_song_list,())
@@ -173,6 +177,10 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             self.check_song_end_t = MY_THREAD(self.check_song_end,())
             self.check_song_end_t.setDaemon(True)
             self.check_song_end_t.start()
+            time.sleep(0.5)
+            self.check_cache_t = MY_THREAD(self.loop_check_cache,())
+            self.check_cache_t.setDaemon(True)
+            self.check_cache_t.start()
 
     def play_next(self):
         if not self.playing_clip :
@@ -325,6 +333,11 @@ class DOUBAN_DLG(QtGui.QMainWindow):
 
 
     def get_album_pic(self, song_info=""):
+        """ get album picture  ->  { file_path | False }
+              * song_info: song information dict, {'picture':'', aid:''...}
+              # return
+                  the album pic file path, if cannot get retrun False
+        """
         if not song_info:
             song_info = self.playing_song
         album_id=song_info['aid']
@@ -389,11 +402,10 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         while True:
             if len(self.song_list) <= 1 :
                 self.song_list = self.fm.get_song_list(self.current_channel, self.history)
-            else:
-                time.sleep(1)
             if len(self.song_list) >= 1:
                 #print "pre get mp3 file %s"% self.song_list[0]['url']
                 self.get_mp3_file(self.song_list[0])
+            time.sleep(10)
 
     def check_song_end(self):
         while True:
@@ -405,11 +417,57 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             self.check_song_end_t.kill()
         if self.check_song_list_t :
             self.check_song_list_t.kill()
+        if self.check_cache_t:
+            self.check_cache_t.kill()
+
         if self.playing_clip:
             self.playing_clip.stop()
         #self.close()
         event.accept()
         sys.exit()
+
+    def get_cache_info(self):
+        """ get mp3 dir cache files size order by mtime """
+        cache_info={}
+        cache_file_list = []
+        total_size = 0L
+        if os.path.isdir(SAVE_MP3_DIR):
+            filename_list = os.listdir(SAVE_MP3_DIR)
+            for filename in filename_list:
+                file_path = os.path.join(SAVE_MP3_DIR, filename)
+                if os.path.isfile(file_path):
+                    file_info = {'path':file_path, 'size':0, 'mtime':0}
+                    file_info['size'] = os.path.getsize(file_path)
+                    file_info['mtime'] = os.path.getmtime(file_path)
+                    cache_file_list.append(file_info)
+                    total_size = total_size + file_info['size']
+                    del file_info
+        if cache_file_list:
+            cache_file_list.sort( key=lambda x:x['mtime'], reverse=True ) # 3333 3332 ... 2222 ... 0
+
+        cache_info['size'] = total_size
+        cache_info['file_list'] = cache_file_list
+        return cache_info
+
+    def clean_cache(self):
+        cache_info = self.get_cache_info()
+        delta_size = CACHE_MAX_SIZE - cache_info['size']
+        rev_space = 100 * 1024 * 1024 # 100M
+        for cache in cache_info['file_list']:
+            if delta_size >= rev_space:
+                break
+            else:
+                if os.path.isfile(cache['path']):
+                    if self.playing_clip and self.playing_clip.filepath == cache['path']:
+                        continue
+                    print "clean cache:",
+                    print cache['path']
+                    os.unlink(cache['path'])
+                    delta_size = delta_size + cache['size']
+    def loop_check_cache(self):
+        while True:
+            self.clean_cache()
+            time.sleep( 3600*2 ) # 2 hours
 
 class MY_THREAD(threading.Thread):
     def __init__(self, func, args, name=''):
