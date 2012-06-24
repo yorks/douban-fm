@@ -20,6 +20,7 @@ DOUBAN_HOME=os.path.expanduser('~/.douban.fm/')
 SAVE_MP3_DIR=os.path.expanduser('~/.douban.fm/mp3/')
 ALBUM_PIC_DIR=os.path.expanduser('~/.douban.fm/album_pic')
 CONF_FILE_PATH=os.path.join(DOUBAN_HOME, '.conf')
+LIKED_LIST_FILE_PATH=os.path.join(DOUBAN_HOME, '.liked')
 
 if not os.path.exists(SAVE_MP3_DIR):
     os.makedirs(SAVE_MP3_DIR)
@@ -53,8 +54,11 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         self.fm = None
 
         self.like = False
+        self.liked_list = []
+        self.banned_list = []
 
         self.parse_conf()
+        #print self.liked_list
 
         self.ui.label_singer.setText(u' ')
         self.ui.label_song_name.setText(u' ')
@@ -107,6 +111,11 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             #print account, password
             self.ui.lineEdit_account.setText(account)
             self.ui.lineEdit_password.setText(password)
+        if os.path.isfile(LIKED_LIST_FILE_PATH):
+            fp = open(LIKED_LIST_FILE_PATH, 'r')
+            content = fp.read()
+            fp.close()
+            self.liked_list = content.split(r'|')
 
 
     def login(self):
@@ -272,10 +281,14 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             self.fm.like_song(self.playing_song['sid'])
             self.like = True
             self.ui.pB_like_unlike.setText(u'Unlike')
+            if self.playing_song['sid'] not in self.liked_list:
+                self.liked_list.append( self.playing_song['sid'] )
         else:
             self.fm.unlike_song(self.playing_song['sid'])
             self.ui.pB_like_unlike.setText(u'Like')
             self.like = False
+            if self.playing_song['sid'] in self.liked_list:
+                self.liked_list.remove( self.playing_song['sid'] )
 
     def set_playing_ui(self):
         #print self.playing_song
@@ -316,6 +329,8 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         if self.playing_song['like'] == 1 :
             self.ui.pB_like_unlike.setText(u'Unlike')
             self.like = True
+            if self.playing_song['sid'] not in self.liked_list:
+                self.liked_list.append( self.playing_song['sid'] )
         else:
             self.ui.pB_like_unlike.setText(u'Like')
             self.like = False
@@ -422,6 +437,11 @@ class DOUBAN_DLG(QtGui.QMainWindow):
 
         if self.playing_clip:
             self.playing_clip.stop()
+        try:
+            self.save_liked_list()
+        except:
+            pass
+
         #self.close()
         event.accept()
         sys.exit()
@@ -458,6 +478,12 @@ class DOUBAN_DLG(QtGui.QMainWindow):
                 break
             else:
                 if os.path.isfile(cache['path']):
+                    try:
+                        song_id = os.path.basename( cache['path'] )[:-4]
+                    except:
+                        continue
+                    if song_id in self.liked_list:
+                        continue
                     if self.playing_clip and self.playing_clip.filepath == cache['path']:
                         continue
                     print "clean cache:",
@@ -468,6 +494,14 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         while True:
             self.clean_cache()
             time.sleep( 3600*2 ) # 2 hours
+
+    def save_liked_list(self):
+        if self.liked_list:
+            content = r'|'.join( [str(i) for i  in self.liked_list] )
+            fw = open(LIKED_LIST_FILE_PATH, 'w')
+            fw.write(content)
+            fw.close()
+
 
 class MY_THREAD(threading.Thread):
     def __init__(self, func, args, name=''):
