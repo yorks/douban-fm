@@ -121,6 +121,8 @@ class DOUBAN_DLG(QtGui.QMainWindow):
     def login(self):
         self.account = str(self.ui.lineEdit_account.text())
         self.password = str(self.ui.lineEdit_password.text())
+        self.ui.pB_login.setText(u'登录中...')
+        self.ui.pB_login.setEnabled(False)
         if not self.fm:
             self.fm = lib_douban_fm.DOUBAN_FM()
         if self.fm.captcha_id:
@@ -137,11 +139,15 @@ class DOUBAN_DLG(QtGui.QMainWindow):
                 pixmap = QtGui.QPixmap(img_path)
                 self.ui.label_v_code_pic.setPixmap(pixmap)
                 QtGui.QMessageBox.information(None, u"登录失败", u'请输入验证码', u"确定")
+                self.ui.pB_login.setEnabled(True)
+                self.ui.pB_login.setText(u'登录')
                 return 0
 
 
             else:
                 QtGui.QMessageBox.information(None, u"登录失败", u'验证码获取不了', u"确定")
+                self.ui.pB_login.setEnabled(True)
+                self.ui.pB_login.setText(u'登录')
                 return 0
 
 
@@ -162,6 +168,8 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             self.play_pause()
         else:
             QtGui.QMessageBox.information(None, u"登录失败", u'登录失败', u"确定")
+            self.ui.pB_login.setEnabled(True)
+            self.ui.pB_login.setText(u'登录')
 
     def play_pause(self):
         """ play_pause   PAUSE / UNPAUSE / PLAY(first login) """
@@ -233,12 +241,17 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         mp3_file_path=os.path.join(SAVE_MP3_DIR, mp3_file_name)
         if os.path.isfile(mp3_file_path):
             return mp3_file_path
-        conn = urllib2.urlopen(song_info['url'])
+        try:
+            conn = urllib2.urlopen(song_info['url'])
+        except:
+            return False
         fw=open(mp3_file_path, 'wb')
         fw.write(conn.read())
         fw.close()
         conn.close()
-        #print "got"
+        if os.path.getsize(mp3_file_path) == 0:
+            os.unlink(mp3_file_path)
+            return False
         return mp3_file_path
 
     def need_2_next(self):
@@ -459,6 +472,9 @@ class DOUBAN_DLG(QtGui.QMainWindow):
                     file_info = {'path':file_path, 'size':0, 'mtime':0}
                     file_info['size'] = os.path.getsize(file_path)
                     file_info['mtime'] = os.path.getmtime(file_path)
+                    if file_info['size'] == 0:
+                        os.unlink(file_path)
+                        continue
                     cache_file_list.append(file_info)
                     total_size = total_size + file_info['size']
                     del file_info
