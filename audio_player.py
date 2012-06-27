@@ -13,6 +13,10 @@ class AUDIO_PLAYER():
     def __init__(self, filepath=""):
         self.filepath=filepath
         self.ext=None
+        self.filesize = 0
+        self.skip_size = 768
+        self.play_size = self.filesize - self.skip_size # to avoid pymedia Segmentation fault when playing song mp3 files
+
 
         self.clip = None
         self.Resampler = None
@@ -41,6 +45,8 @@ class AUDIO_PLAYER():
         self.audio_fp = open( self.filepath, "rb" )
         self.th = None # playback thread
         self.status = self.status_list[1]
+        self.filesize = os.path.getsize(self.filepath)
+        self.play_size = self.filesize - self.skip_size
         return 200
 
     def play(self):
@@ -77,6 +83,8 @@ class AUDIO_PLAYER():
                                 continue
                 if self.audio_fp:
                     audio_data = self.audio_fp.read( 128 )
+                    if( self.audio_fp.tell() >= self.play_size ): # PLS see __init__ self.play_size
+                        audio_data = None
             else:
                 print "the end"
                 self.stop()

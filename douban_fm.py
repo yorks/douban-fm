@@ -244,11 +244,15 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         try:
             conn = urllib2.urlopen(song_info['url'])
         except:
+            print "urllib2 get except:", song_info['url']
             return False
         fw=open(mp3_file_path, 'wb')
         fw.write(conn.read())
         fw.close()
         conn.close()
+        if not os.path.isfile(mp3_file_path):
+            print "not file", mp3_file_path
+            return False
         if os.path.getsize(mp3_file_path) == 0:
             os.unlink(mp3_file_path)
             return False
