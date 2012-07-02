@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dlg_douban_fm.ui'
 #
-# Created: Sat Jun 23 00:48:20 2012
+# Created: Tue Jul  3 01:17:49 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -75,16 +75,20 @@ class Ui_Dlg_douban(object):
         self.pB_next.setGeometry(QtCore.QRect(110, 20, 71, 31))
         self.pB_next.setObjectName(_fromUtf8("pB_next"))
         self.pB_like_unlike = QtGui.QPushButton(self.groupBox_2)
-        self.pB_like_unlike.setGeometry(QtCore.QRect(200, 20, 81, 31))
+        self.pB_like_unlike.setGeometry(QtCore.QRect(200, 20, 71, 31))
         self.pB_like_unlike.setObjectName(_fromUtf8("pB_like_unlike"))
         self.cB_channel = QtGui.QComboBox(self.groupBox_2)
-        self.cB_channel.setGeometry(QtCore.QRect(300, 20, 71, 31))
+        self.cB_channel.setGeometry(QtCore.QRect(340, 20, 81, 31))
         self.cB_channel.setObjectName(_fromUtf8("cB_channel"))
         self.verticalSlider_volume = QtGui.QSlider(self.groupBox_2)
-        self.verticalSlider_volume.setGeometry(QtCore.QRect(400, 10, 21, 41))
+        self.verticalSlider_volume.setGeometry(QtCore.QRect(430, 10, 21, 41))
         self.verticalSlider_volume.setMaximum(65535)
         self.verticalSlider_volume.setOrientation(QtCore.Qt.Vertical)
         self.verticalSlider_volume.setObjectName(_fromUtf8("verticalSlider_volume"))
+        self.pB_ban = QtGui.QPushButton(self.groupBox_2)
+        self.pB_ban.setGeometry(QtCore.QRect(285, 20, 41, 31))
+        self.pB_ban.setStatusTip(_fromUtf8(""))
+        self.pB_ban.setObjectName(_fromUtf8("pB_ban"))
         self.groupBox_3 = QtGui.QGroupBox(Dlg_douban)
         self.groupBox_3.setGeometry(QtCore.QRect(10, 10, 291, 161))
         self.groupBox_3.setStyleSheet(_fromUtf8("QGroupBox {\n"
@@ -137,7 +141,7 @@ class Ui_Dlg_douban(object):
         self.label_v_code_pic.setText(_fromUtf8(""))
         self.label_v_code_pic.setObjectName(_fromUtf8("label_v_code_pic"))
         self.label_status = QtGui.QLabel(Dlg_douban)
-        self.label_status.setGeometry(QtCore.QRect(20, 250, 271, 20))
+        self.label_status.setGeometry(QtCore.QRect(10, 250, 341, 20))
         self.label_status.setTextFormat(QtCore.Qt.RichText)
         self.label_status.setObjectName(_fromUtf8("label_status"))
 
@@ -146,12 +150,14 @@ class Ui_Dlg_douban(object):
 
     def retranslateUi(self, Dlg_douban):
         Dlg_douban.setWindowTitle(QtGui.QApplication.translate("Dlg_douban", "douban.fm", None, QtGui.QApplication.UnicodeUTF8))
-        self.lable_auth.setText(QtGui.QApplication.translate("Dlg_douban", "<html><head/><body><p><span style=\" font-size:7pt;\">Author: </span><a href=\"mailto:stuyorks@gmail.com\"><span style=\" font-size:7pt; text-decoration: underline; color:#0000ff;\">stuyorks@gmail.com</span></a><span style=\" font-size:7pt;\">  v1.0</span></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.lable_auth.setText(QtGui.QApplication.translate("Dlg_douban", "<html><head/><body><p><span style=\" font-size:7pt;\">Author: </span><a href=\"mailto:stuyorks@gmail.com\"><span style=\" font-size:7pt; text-decoration: underline; color:#0000ff;\">stuyorks@gmail.com</span></a></p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox.setTitle(QtGui.QApplication.translate("Dlg_douban", "登录豆瓣", None, QtGui.QApplication.UnicodeUTF8))
         self.pB_login.setText(QtGui.QApplication.translate("Dlg_douban", "Login", None, QtGui.QApplication.UnicodeUTF8))
         self.pB_play_pause.setText(QtGui.QApplication.translate("Dlg_douban", "Play/Pause", None, QtGui.QApplication.UnicodeUTF8))
         self.pB_next.setText(QtGui.QApplication.translate("Dlg_douban", "Next", None, QtGui.QApplication.UnicodeUTF8))
         self.pB_like_unlike.setText(QtGui.QApplication.translate("Dlg_douban", "Like/Unlike", None, QtGui.QApplication.UnicodeUTF8))
+        self.pB_ban.setToolTip(QtGui.QApplication.translate("Dlg_douban", "<html><head/><body><p>不再收听这首歌</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.pB_ban.setText(QtGui.QApplication.translate("Dlg_douban", "Ban", None, QtGui.QApplication.UnicodeUTF8))
         self.label_public_time.setText(QtGui.QApplication.translate("Dlg_douban", "发布时间", None, QtGui.QApplication.UnicodeUTF8))
         self.label_album_name.setText(QtGui.QApplication.translate("Dlg_douban", "专辑:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_song_name.setText(QtGui.QApplication.translate("Dlg_douban", "歌名:", None, QtGui.QApplication.UnicodeUTF8))

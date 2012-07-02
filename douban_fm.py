@@ -27,7 +27,7 @@ if not os.path.exists(SAVE_MP3_DIR):
 if not os.path.exists(ALBUM_PIC_DIR):
     os.makedirs(ALBUM_PIC_DIR)
 
-CACHE_MAX_SIZE=1 * 1024 * 1024 * 1024 # 1G
+CACHE_MAX_SIZE=2 * 1024 * 1024 * 1024 # 2G
 
 class DOUBAN_DLG(QtGui.QMainWindow):
     def __init__(self, parent=None):
@@ -74,6 +74,7 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         self.ui.pB_play_pause.setEnabled(False)
         self.ui.pB_next.setEnabled(False)
         self.ui.pB_like_unlike.setEnabled(False)
+        self.ui.pB_ban.setEnabled(False)
         self.ui.verticalSlider_volume.setMaximum(self.max_volume)
         self.ui.verticalSlider_volume.setValue( self.max_volume * 0.8 )
         self.ui.label_album_detail.setOpenExternalLinks(True)
@@ -90,6 +91,7 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         QtCore.QObject.connect( self.ui.pB_play_pause, QtCore.SIGNAL("clicked()"), self.play_pause )
         QtCore.QObject.connect( self.ui.pB_next, QtCore.SIGNAL("clicked()"), self.play_next )
         QtCore.QObject.connect( self.ui.pB_like_unlike, QtCore.SIGNAL("clicked()"), self.like_unlike)
+        QtCore.QObject.connect( self.ui.pB_ban, QtCore.SIGNAL("clicked()"), self.ban_song)
         QtCore.QObject.connect( self.ui.verticalSlider_volume, QtCore.SIGNAL("sliderReleased()"), self.set_volume)
         QtCore.QObject.connect( self.ui.cB_channel, QtCore.SIGNAL("currentIndexChanged(int)"), self.set_current_channel )
 
@@ -158,6 +160,7 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             self.ui.pB_play_pause.setEnabled(True)
             self.ui.pB_next.setEnabled(True)
             self.ui.pB_like_unlike.setEnabled(True)
+            self.ui.pB_ban.setEnabled(True)
             self.ui.lineEdit_account.setReadOnly(True)
             self.ui.lineEdit_account.setEnabled(False)
             self.ui.lineEdit_password.setReadOnly(True)
@@ -357,10 +360,20 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             album_pic_path = u':/fm.jpg'
         pixmap = QtGui.QPixmap(album_pic_path)
         self.ui.label_album_pic.setPixmap(pixmap)
+        next_song_htm=u''
+        if self.song_list:
+            next_song=self.song_list[0]
+            try:
+                next_song_title=next_song['title'].decode('utf8')
+            except:
+                pass
+            next_song_htm=u'下一首: '+ next_song_title
+        self.ui.pB_next.setToolTip(next_song_htm)
+
         self.user_record = self.fm.get_user_record()
         user_record_htm=u'累计<font color="blue"> %d </font>首, 红心<font color="red"> %s </font> 首, 不再听 %s 首'% ( self.user_record['played'],
                 self.user_record['liked'], self.user_record['banned'] )
-        self.ui.label_status.setText(user_record_htm)
+        self.ui.label_status.setText( user_record_htm )
         self.ui.label_status.setVisible(True)
 
 
@@ -454,10 +467,12 @@ class DOUBAN_DLG(QtGui.QMainWindow):
 
         if self.playing_clip:
             self.playing_clip.stop()
-        try:
-            self.save_liked_list()
-        except:
-            pass
+
+        if self.fm:
+            try:
+                self.save_liked_list()
+            except:
+                pass
 
         #self.close()
         event.accept()
@@ -476,7 +491,10 @@ class DOUBAN_DLG(QtGui.QMainWindow):
                     file_info = {'path':file_path, 'size':0, 'mtime':0}
                     file_info['size'] = os.path.getsize(file_path)
                     file_info['mtime'] = os.path.getmtime(file_path)
-                    if file_info['size'] == 0:
+                    if file_info['size'] == 0: # remove size = 0 file
+                        os.unlink(file_path)
+                        continue
+                    if filename.replace(r'.mp3', '') in self.banned_list: # remove file in banned_list
                         os.unlink(file_path)
                         continue
                     cache_file_list.append(file_info)
@@ -521,6 +539,13 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             fw = open(LIKED_LIST_FILE_PATH, 'w')
             fw.write(content)
             fw.close()
+
+    def ban_song(self):
+        if self.playing_song:
+            self.fm.ban_song(self.playing_song['sid'])
+            if self.playing_song['sid'] not in self.banned_list:
+                self.banned_list.append(self.playing_song['sid'])
+            self.play_next()
 
 
 class MY_THREAD(threading.Thread):

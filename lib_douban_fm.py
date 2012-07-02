@@ -25,7 +25,7 @@ class DOUBAN_FM(object):
         self.get_bid()
         self.type_dict={}
         # from http://code.google.com/p/drhac/wiki/Protocol
-        self.type_dict['b']='bye'     # 播放以删除终止. 长报告
+        self.type_dict['b']='ban'     # 播放以删除终止. 长报告
         self.type_dict['e']='end'     # 返回:'"OK"', 报告歌曲播放完毕, 短报告
         self.type_dict['n']='new'     # 返回新播放列表, 无其余必备参数(uid?). 长报告
         self.type_dict['p']='playing' # 单首歌曲播放开始且播放列表已空时发送, 长报告, 疑似是专门为平淡地获取播放列表而设定的.
@@ -294,6 +294,17 @@ class DOUBAN_FM(object):
         params['type_'] = 'u'
         params['song_id'] = song_id
         res = self.__request_douban_fm__( params )
+
+    def ban_song(self, song_id):
+        params = dict( self.params )
+        params['type_'] = 'b'
+        params['song_id'] = song_id
+        res = self.__request_douban_fm__( params )
+
+    def unban_song(self, song_id):
+        url="http://douban.fm/j/song/%s/undo_ban"% song_id
+        #headers = self.fm_headers
+        pass
 
 
 def get_random_num_char(many):
