@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dlg_douban_fm.ui'
 #
-# Created: Tue Jul  3 01:17:49 2012
+# Created: Sun Jul  8 02:15:45 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -69,26 +69,30 @@ class Ui_Dlg_douban(object):
         self.groupBox_2.setTitle(_fromUtf8(""))
         self.groupBox_2.setObjectName(_fromUtf8("groupBox_2"))
         self.pB_play_pause = QtGui.QPushButton(self.groupBox_2)
-        self.pB_play_pause.setGeometry(QtCore.QRect(20, 20, 71, 31))
+        self.pB_play_pause.setGeometry(QtCore.QRect(15, 20, 60, 31))
         self.pB_play_pause.setObjectName(_fromUtf8("pB_play_pause"))
         self.pB_next = QtGui.QPushButton(self.groupBox_2)
-        self.pB_next.setGeometry(QtCore.QRect(110, 20, 71, 31))
+        self.pB_next.setGeometry(QtCore.QRect(90, 20, 60, 31))
         self.pB_next.setObjectName(_fromUtf8("pB_next"))
         self.pB_like_unlike = QtGui.QPushButton(self.groupBox_2)
-        self.pB_like_unlike.setGeometry(QtCore.QRect(200, 20, 71, 31))
+        self.pB_like_unlike.setGeometry(QtCore.QRect(165, 20, 60, 31))
         self.pB_like_unlike.setObjectName(_fromUtf8("pB_like_unlike"))
         self.cB_channel = QtGui.QComboBox(self.groupBox_2)
-        self.cB_channel.setGeometry(QtCore.QRect(340, 20, 81, 31))
+        self.cB_channel.setGeometry(QtCore.QRect(345, 20, 81, 31))
         self.cB_channel.setObjectName(_fromUtf8("cB_channel"))
         self.verticalSlider_volume = QtGui.QSlider(self.groupBox_2)
-        self.verticalSlider_volume.setGeometry(QtCore.QRect(430, 10, 21, 41))
+        self.verticalSlider_volume.setGeometry(QtCore.QRect(435, 10, 21, 41))
         self.verticalSlider_volume.setMaximum(65535)
         self.verticalSlider_volume.setOrientation(QtCore.Qt.Vertical)
         self.verticalSlider_volume.setObjectName(_fromUtf8("verticalSlider_volume"))
         self.pB_ban = QtGui.QPushButton(self.groupBox_2)
-        self.pB_ban.setGeometry(QtCore.QRect(285, 20, 41, 31))
+        self.pB_ban.setGeometry(QtCore.QRect(240, 20, 41, 31))
         self.pB_ban.setStatusTip(_fromUtf8(""))
         self.pB_ban.setObjectName(_fromUtf8("pB_ban"))
+        self.pB_setting = QtGui.QPushButton(self.groupBox_2)
+        self.pB_setting.setGeometry(QtCore.QRect(290, 20, 45, 31))
+        self.pB_setting.setStatusTip(_fromUtf8(""))
+        self.pB_setting.setObjectName(_fromUtf8("pB_setting"))
         self.groupBox_3 = QtGui.QGroupBox(Dlg_douban)
         self.groupBox_3.setGeometry(QtCore.QRect(10, 10, 291, 161))
         self.groupBox_3.setStyleSheet(_fromUtf8("QGroupBox {\n"
@@ -141,7 +145,7 @@ class Ui_Dlg_douban(object):
         self.label_v_code_pic.setText(_fromUtf8(""))
         self.label_v_code_pic.setObjectName(_fromUtf8("label_v_code_pic"))
         self.label_status = QtGui.QLabel(Dlg_douban)
-        self.label_status.setGeometry(QtCore.QRect(10, 250, 341, 20))
+        self.label_status.setGeometry(QtCore.QRect(10, 250, 331, 20))
         self.label_status.setTextFormat(QtCore.Qt.RichText)
         self.label_status.setObjectName(_fromUtf8("label_status"))
 
@@ -157,7 +161,11 @@ class Ui_Dlg_douban(object):
         self.pB_next.setText(QtGui.QApplication.translate("Dlg_douban", "Next", None, QtGui.QApplication.UnicodeUTF8))
         self.pB_like_unlike.setText(QtGui.QApplication.translate("Dlg_douban", "Like/Unlike", None, QtGui.QApplication.UnicodeUTF8))
         self.pB_ban.setToolTip(QtGui.QApplication.translate("Dlg_douban", "<html><head/><body><p>不再收听这首歌</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.pB_ban.setWhatsThis(QtGui.QApplication.translate("Dlg_douban", "<html><head/><body><p>不再收听这首歌</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
         self.pB_ban.setText(QtGui.QApplication.translate("Dlg_douban", "Ban", None, QtGui.QApplication.UnicodeUTF8))
+        self.pB_setting.setToolTip(QtGui.QApplication.translate("Dlg_douban", "<html><head/><body><p>设置 快捷键/缓存...</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.pB_setting.setWhatsThis(QtGui.QApplication.translate("Dlg_douban", "<html><head/><body><p>设置 快捷键/缓存...</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
+        self.pB_setting.setText(QtGui.QApplication.translate("Dlg_douban", "Settig", None, QtGui.QApplication.UnicodeUTF8))
         self.label_public_time.setText(QtGui.QApplication.translate("Dlg_douban", "发布时间", None, QtGui.QApplication.UnicodeUTF8))
         self.label_album_name.setText(QtGui.QApplication.translate("Dlg_douban", "专辑:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_song_name.setText(QtGui.QApplication.translate("Dlg_douban", "歌名:", None, QtGui.QApplication.UnicodeUTF8))
