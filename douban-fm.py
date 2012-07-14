@@ -571,6 +571,8 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         return cache_info
 
     def clean_cache(self):
+        if self.cache_max_size == 0:
+            return
         cache_info = self.get_cache_info()
         delta_size = self.cache_max_size - cache_info['size']
         rev_space = 100 * 1024 * 1024 # 100M
