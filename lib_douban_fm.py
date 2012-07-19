@@ -139,7 +139,7 @@ class DOUBAN_FM(object):
         #print conn.code
         verification_page = conn.read()
         conn.close()
-        #print verification_page
+        print verification_page
         verification_img_url = re.findall(r'<img id="captcha_image" src="(.*)" alt="captcha" class="captcha_image"/>', verification_page, re.M)[0]
         # <input type="hidden" name="captcha-id" value="uLjvQQy5OfUxjLZ4BwAmo1i1"/>
         self.captcha_id = re.findall(r' name="captcha-id" value="(.*)"/>', verification_page, re.M)[0]
@@ -158,13 +158,13 @@ class DOUBAN_FM(object):
 
     def get_channel_list(self):
         channel_list=[]
-        url='http://www.douban.com/j/app/radio/channels'
+        url='http://douban.fm/j/app/radio/channels'
         headers={
                 'Accept':'text/html, application/xhtml+xml, */*',
                 'Accept-Language':'zh-CN',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
                 #'Accept-Encoding': 'gzip, deflate',
-                'Host': 'www.douban.com',
+                'Host': 'douban.fm',
                 'Connection': 'Keep-Alive',
                 'Cookie':'bid="%s"; ac="1304248680"'% self.bid
                 }
@@ -196,6 +196,8 @@ class DOUBAN_FM(object):
         headers = dict(self.fm_headers)
         if headers['Keep-Alive']:
             del headers['Keep-Alive']
+        import socket
+        socket.setdefaulttimeout(5)
         req=urllib2.Request(url=url, headers=headers)
         conn=urllib2.urlopen(req)
         res = conn.read()
