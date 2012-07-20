@@ -139,7 +139,7 @@ class DOUBAN_FM(object):
         #print conn.code
         verification_page = conn.read()
         conn.close()
-        print verification_page
+        #print verification_page
         verification_img_url = re.findall(r'<img id="captcha_image" src="(.*)" alt="captcha" class="captcha_image"/>', verification_page, re.M)[0]
         # <input type="hidden" name="captcha-id" value="uLjvQQy5OfUxjLZ4BwAmo1i1"/>
         self.captcha_id = re.findall(r' name="captcha-id" value="(.*)"/>', verification_page, re.M)[0]
@@ -158,34 +158,38 @@ class DOUBAN_FM(object):
 
     def get_channel_list(self):
         channel_list=[]
-        url='http://douban.fm/j/app/radio/channels'
-        headers={
-                'Accept':'text/html, application/xhtml+xml, */*',
-                'Accept-Language':'zh-CN',
-                'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
-                #'Accept-Encoding': 'gzip, deflate',
-                'Host': 'douban.fm',
-                'Connection': 'Keep-Alive',
-                'Cookie':'bid="%s"; ac="1304248680"'% self.bid
-                }
-        req = urllib2.Request(url=url, headers=headers)
-        conn=urllib2.urlopen(req)
-        res = conn.read()
+        url='http://douban.fm/'
+        headers = dict(self.fm_headers)
+        try:
+            req = urllib2.Request(url=url, headers=headers)
+            conn=urllib2.urlopen(req)
+            res = conn.read()
+        except:
+            pass
         #try:
         #    print res.decode('utf-8')
         #except:
         #    pass
         conn.close()
-        try:
-            self.channel_list=eval(res)['channels']
-        except:
-            self.channel_list=[]
+        if res.find('channels:') != -1:
+            try:
+                channels = res.split("channels: '")[1].strip().split("'"+os.linesep)[0].strip()
+                channels = urllib.unquote(channels)
+                self.channel_list = eval(channels)
+                i=0
+                for channel in self.channel_list:
+                    if not channel.has_key('seq_id'):
+                        channel['seq_id'] = i
+                        i=i+1
+            except:
+                self.channel_list=[]
 
         like_seq_id = len(self.channel_list)
         LIKE_CHANNEL={"name": u"Red_Heart", "seq_id": like_seq_id, "abbr_en": "My", "channel_id": -3,"name_en": "Personal Radio"}
         print self.uid
         if self.uid: # logined user add red heart channel
             self.channel_list.append(LIKE_CHANNEL)
+        print self.channel_list
         return self.channel_list
 
     def get_user_record(self):
