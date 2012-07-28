@@ -11,6 +11,7 @@ import sys
 import threading
 import time
 import urllib2
+import urllib
 import os
 import ConfigParser
 
@@ -90,7 +91,7 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         self.ui.label_song_name.setText(u' ')
         self.ui.label_album_name.setText(u' ')
         self.ui.label_public_time.setText(u' ')
-        self.ui.label_album_detail.setText(u' ')
+        self.ui.label_share.setText(u' ')
         self.ui.label_save_song.setText(u' ')
         self.ui.label_google_song.setText(u' ')
         self.current_channel = 0
@@ -103,7 +104,8 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         self.ui.pB_ban.setEnabled(False)
         self.ui.verticalSlider_volume.setMaximum(self.max_volume)
         self.ui.verticalSlider_volume.setValue( self.max_volume * 0.8 )
-        self.ui.label_album_detail.setOpenExternalLinks(True)
+        self.ui.pB_album_pic.setFlat(True)
+        self.ui.label_share.setOpenExternalLinks(True)
         self.ui.label_save_song.setOpenExternalLinks(True)
         self.ui.label_google_song.setOpenExternalLinks(True)
         self.ui.label_save_song.setVisible(False)
@@ -121,6 +123,7 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         QtCore.QObject.connect( self.ui.pB_setting, QtCore.SIGNAL("clicked()"), self.setting)
         QtCore.QObject.connect( self.ui.verticalSlider_volume, QtCore.SIGNAL("sliderReleased()"), self.set_volume)
         QtCore.QObject.connect( self.ui.cB_channel, QtCore.SIGNAL("currentIndexChanged(int)"), self.set_current_channel )
+        QtCore.QObject.connect( self.ui.pB_album_pic, QtCore.SIGNAL("clicked()"), self.open_album_url )
 
         QtCore.QObject.connect( self, QtCore.SIGNAL("new_play()"), self.set_playing_ui ) # 开始播放下一首歌曲时
         QtCore.QObject.connect( self, QtCore.SIGNAL("song_end()"), self.need_2_next ) # 当前歌曲播放完毕时
@@ -364,27 +367,39 @@ class DOUBAN_DLG(QtGui.QMainWindow):
 
     def set_playing_ui(self):
         #print self.playing_song
-        try:
-            print self.playing_song['sid'].decode('utf8'),
-            print self.playing_song['artist'].decode('utf8'),
-            print self.playing_song['title'].decode('utf8'),
-            print self.playing_song['albumtitle'].decode('utf8')
-        except:
-            pass
 
-
-        title=self.playing_song['title'].decode('utf8')
+        sid    = self.playing_song['sid'].decode('utf8')
+        ssid    = self.playing_song['ssid'].decode('utf8')
+        title  = self.playing_song['title'].decode('utf8')
         artist = self.playing_song['artist'].decode('utf8')
         albumtitle = self.playing_song['albumtitle'].decode('utf8')
         public_time = self.playing_song['public_time'].decode('utf8')
-        album_link = 'http://music.douban.com' + self.playing_song['album'].decode('utf8')
-        google_song_link = 'http://www.google.cn/music/search?q='+ self.playing_song['title'].decode('utf8')
+        pic_url = self.playing_song['picture'].decode('utf8')
+        try:
+            print sid, title, atrist
+        except:
+            pass
 
-        detail_html = u'<a href="%s">专辑详情</a>'% album_link
+        album_link = 'http://music.douban.com' + self.playing_song['album'].decode('utf8')
+        google_song_link = 'http://www.google.cn/music/search?q='+ title
+
+        s_song_url=u'http://douban.fm/?start=%sg%sg0&cid=0'% (sid, ssid)
+        s_title=u'分享 %s 的 《%s》(来自Douban-FM #%s 频道)'% (artist, title, self.ui.cB_channel.currentText())
+        try:
+            s_title = urllib.quote(s_title.encode('utf8'))
+        except:
+            pass
+        s_pic = pic_url.replace('/mpic/', '/lpic/')
+
+        share_url=u'http://v.t.sina.com.cn/share/share.php?appkey=3163308509&url='+s_song_url+u'&title='+s_title+u'&source=&sourceUrl=&content=utf-8&pic='+s_pic
+        #print share_url
+        share_html = u'<a href="%s">分享</a>'% share_url
+
         save_song_html = u'<a href="%s">下载</a>'% self.playing_song['url']
         google_song_html = u'<a href="%s">Google It</a>'% google_song_link
         #print google_song_html
 
+        self.setWindowTitle(u'douban-fm   '+title+u' - '+artist)
         self.ui.label_singer.setText(u'歌手:'+artist)
         self.ui.label_singer.setToolTip(artist)
         self.ui.label_song_name.setText(u'歌名:'+title)
@@ -393,11 +408,11 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         self.ui.label_album_name.setToolTip(albumtitle)
         self.ui.label_public_time.setText(u'发行时间:'+ public_time)
         self.ui.label_public_time.setToolTip( public_time )
-        self.ui.label_album_detail.setVisible(True)
+        self.ui.label_share.setVisible(True)
         self.ui.label_save_song.setVisible(True)
         self.ui.label_google_song.setVisible(True)
-        self.ui.label_album_detail.setText(detail_html)
-        self.ui.label_album_detail.setToolTip(u'到豆瓣看看该专辑')
+        self.ui.label_share.setText(share_html)
+        self.ui.label_share.setToolTip(u'分享这首歌到微博')
         self.ui.label_google_song.setText(google_song_html)
         self.ui.label_google_song.setToolTip(u'到Google搜索该歌曲')
         self.ui.label_save_song.setText(save_song_html)
@@ -417,16 +432,21 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         album_pic_path = self.get_album_pic(self.playing_song)
         if not album_pic_path:
             album_pic_path = u':/fm.jpg'
-        pixmap = QtGui.QPixmap(album_pic_path)
-        self.ui.label_album_pic.setPixmap(pixmap)
+        #pixmap = QtGui.QPixmap(album_pic_path)
+        #self.ui.label_album_pic.setPixmap(pixmap)
+        album_ico = QtGui.QIcon(album_pic_path)
+        self.ui.pB_album_pic.setIconSize(QtCore.QSize(106,140))
+        self.ui.pB_album_pic.setIcon(album_ico)
+        self.ui.pB_album_pic.setToolTip(u'到豆瓣看看该专辑')
         next_song_htm=u''
         if self.song_list:
             next_song=self.song_list[0]
             try:
                 next_song_title=next_song['title'].decode('utf8')
+                next_song_artist=next_song['artist'].decode('utf8')
             except:
                 pass
-            next_song_htm=u'下一首: '+ next_song_title
+            next_song_htm=u'下一首: '+ next_song_title + u' - '+ next_song_artist
         self.ui.pB_next.setToolTip(next_song_htm)
 
         self.user_record = self.fm.get_user_record()
@@ -487,6 +507,7 @@ class DOUBAN_DLG(QtGui.QMainWindow):
                 self.current_channel = channel['channel_id']
                 #print seq_id
                 print self.current_channel
+        self.ui.pB_play_pause.setFocus()
 
     def mp3_play(self, song_info=""):
         if not song_info:
@@ -611,6 +632,12 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             if self.playing_song['sid'] not in self.banned_list:
                 self.banned_list.append(self.playing_song['sid'])
             self.play_next()
+
+    def open_album_url(self):
+        self.ui.pB_play_pause.setFocus()
+        if self.playing_song:
+            album_link = u'http://music.douban.com' + self.playing_song['album'].decode('utf8')
+            QtGui.QDesktopServices.openUrl( QtCore.QUrl(album_link) )
 
     def keyPressEvent(self, event):
         key = event.key()

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'dlg_douban_fm.ui'
 #
-# Created: Sun Jul  8 02:15:45 2012
+# Created: Sun Jul 22 18:37:39 2012
 #      by: PyQt4 UI code generator 4.9.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -127,14 +127,14 @@ class Ui_Dlg_douban(object):
         self.label_singer = QtGui.QLabel(self.groupBox_3)
         self.label_singer.setGeometry(QtCore.QRect(130, 20, 151, 16))
         self.label_singer.setObjectName(_fromUtf8("label_singer"))
-        self.label_album_detail = QtGui.QLabel(self.groupBox_3)
-        self.label_album_detail.setGeometry(QtCore.QRect(130, 140, 51, 16))
-        self.label_album_detail.setObjectName(_fromUtf8("label_album_detail"))
+        self.label_share = QtGui.QLabel(self.groupBox_3)
+        self.label_share.setGeometry(QtCore.QRect(135, 140, 31, 16))
+        self.label_share.setObjectName(_fromUtf8("label_share"))
         self.label_save_song = QtGui.QLabel(self.groupBox_3)
-        self.label_save_song.setGeometry(QtCore.QRect(190, 140, 31, 16))
+        self.label_save_song.setGeometry(QtCore.QRect(180, 140, 31, 16))
         self.label_save_song.setObjectName(_fromUtf8("label_save_song"))
         self.label_google_song = QtGui.QLabel(self.groupBox_3)
-        self.label_google_song.setGeometry(QtCore.QRect(230, 140, 61, 16))
+        self.label_google_song.setGeometry(QtCore.QRect(220, 140, 61, 16))
         self.label_google_song.setObjectName(_fromUtf8("label_google_song"))
         self.lineEdit_v_code = QtGui.QLineEdit(self.groupBox_3)
         self.lineEdit_v_code.setGeometry(QtCore.QRect(90, 80, 131, 31))
@@ -144,6 +144,11 @@ class Ui_Dlg_douban(object):
         self.label_v_code_pic.setGeometry(QtCore.QRect(20, 30, 250, 40))
         self.label_v_code_pic.setText(_fromUtf8(""))
         self.label_v_code_pic.setObjectName(_fromUtf8("label_v_code_pic"))
+        self.pB_album_pic = QtGui.QPushButton(self.groupBox_3)
+        self.pB_album_pic.setGeometry(QtCore.QRect(10, 10, 106, 140))
+        self.pB_album_pic.setText(_fromUtf8(""))
+        self.pB_album_pic.setFlat(True)
+        self.pB_album_pic.setObjectName(_fromUtf8("pB_album_pic"))
         self.label_status = QtGui.QLabel(Dlg_douban)
         self.label_status.setGeometry(QtCore.QRect(10, 250, 331, 20))
         self.label_status.setTextFormat(QtCore.Qt.RichText)
@@ -170,7 +175,7 @@ class Ui_Dlg_douban(object):
         self.label_album_name.setText(QtGui.QApplication.translate("Dlg_douban", "专辑:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_song_name.setText(QtGui.QApplication.translate("Dlg_douban", "歌名:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_singer.setText(QtGui.QApplication.translate("Dlg_douban", "歌手:", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_album_detail.setText(QtGui.QApplication.translate("Dlg_douban", "专辑详情", None, QtGui.QApplication.UnicodeUTF8))
+        self.label_share.setText(QtGui.QApplication.translate("Dlg_douban", "分享", None, QtGui.QApplication.UnicodeUTF8))
         self.label_save_song.setText(QtGui.QApplication.translate("Dlg_douban", "下载", None, QtGui.QApplication.UnicodeUTF8))
         self.label_google_song.setText(QtGui.QApplication.translate("Dlg_douban", "Google It", None, QtGui.QApplication.UnicodeUTF8))
         self.label_status.setText(QtGui.QApplication.translate("Dlg_douban", "累计11111首 加红心111首 111首不再播发", None, QtGui.QApplication.UnicodeUTF8))
