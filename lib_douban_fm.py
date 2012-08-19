@@ -173,7 +173,7 @@ class DOUBAN_FM(object):
         conn.close()
         if res.find('channels:') != -1:
             try:
-                channels = res.split("channels: '")[1].strip().split("'"+os.linesep)[0].strip()
+                channels = res.split("channels: '")[1].strip().split(r"'")[0].strip()
                 channels = urllib.unquote(channels)
                 self.channel_list = eval(channels)
                 i=0

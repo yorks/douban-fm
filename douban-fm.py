@@ -313,7 +313,10 @@ class DOUBAN_DLG(QtGui.QMainWindow):
             print "not file", mp3_file_path
             return False
         if os.path.getsize(mp3_file_path) == 0:
-            os.unlink(mp3_file_path)
+            try:
+                os.unlink(mp3_file_path)
+            except:
+                pass
             return False
         return mp3_file_path
 
@@ -580,10 +583,16 @@ class DOUBAN_DLG(QtGui.QMainWindow):
                     file_info['size'] = os.path.getsize(file_path)
                     file_info['mtime'] = os.path.getmtime(file_path)
                     if file_info['size'] == 0: # remove size = 0 file
-                        os.unlink(file_path)
+                        try:
+                            os.unlink(file_path)
+                        except WindowsError:
+                            pass
                         continue
                     if filename.replace(r'.mp3', '') in self.banned_list: # remove file in banned_list
-                        os.unlink(file_path)
+                        try:
+                            os.unlink(file_path)
+                        except WindowsError:
+                            pass
                         continue
                     cache_file_list.append(file_info)
                     total_size = total_size + file_info['size']
@@ -616,7 +625,10 @@ class DOUBAN_DLG(QtGui.QMainWindow):
                         continue
                     print "clean cache:",
                     print cache['path']
-                    os.unlink(cache['path'])
+                    try:
+                        os.unlink(cache['path'])
+                    except WindowsError:
+                        pass
                     delta_size = delta_size + cache['size']
     def loop_check_cache(self):
         while True:
