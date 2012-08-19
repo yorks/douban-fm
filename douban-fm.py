@@ -123,6 +123,7 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         QtCore.QObject.connect( self.ui.pB_setting, QtCore.SIGNAL("clicked()"), self.setting)
         QtCore.QObject.connect( self.ui.verticalSlider_volume, QtCore.SIGNAL("sliderReleased()"), self.set_volume)
         QtCore.QObject.connect( self.ui.cB_channel, QtCore.SIGNAL("currentIndexChanged(int)"), self.set_current_channel )
+        QtCore.QObject.connect( self.ui.cB_channel, QtCore.SIGNAL("activated(int)"), self.combox_active )
         QtCore.QObject.connect( self.ui.pB_album_pic, QtCore.SIGNAL("clicked()"), self.open_album_url )
 
         QtCore.QObject.connect( self, QtCore.SIGNAL("new_play()"), self.set_playing_ui ) # 开始播放下一首歌曲时
@@ -507,6 +508,9 @@ class DOUBAN_DLG(QtGui.QMainWindow):
                 self.current_channel = channel['channel_id']
                 #print seq_id
                 print self.current_channel
+        self.ui.pB_play_pause.setFocus()
+
+    def combox_active(self, seq_id):
         self.ui.pB_play_pause.setFocus()
 
     def mp3_play(self, song_info=""):

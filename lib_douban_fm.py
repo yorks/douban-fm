@@ -197,6 +197,7 @@ class DOUBAN_FM(object):
         if not self.uid:
             return user_record
         url='http://douban.fm/mine?type=played'
+        url='http://douban.fm/'
         headers = dict(self.fm_headers)
         if headers['Keep-Alive']:
             del headers['Keep-Alive']
@@ -206,9 +207,23 @@ class DOUBAN_FM(object):
         conn=urllib2.urlopen(req)
         res = conn.read()
         conn.close()
-        user_record['played']=int(res.split(r'<span class="stat-total">')[1].split(r'<i>')[1].split(r'</i>')[0])
-        user_record['liked']=int(res.split(r'<span class="stat-liked">')[1].split(r'<i>')[1].split(r'</i>')[0])
-        user_record['banned']=int(res.split(r'<span class="stat-banned">')[1].split(r'<i>')[1].split(r'</i>')[0])
+        """<ul id="user_play_record">
+            <li>
+                <a href="/mine?type=played" target="_blank">累积收听<span id="rec_played">25733</span>首</a>
+            </li>
+            <li>
+                <a href="/mine?type=liked" target="_blank">加红心<span id="rec_liked">224</span>首</a>
+            </li>
+            <li>
+                <a href="/mine?type=banned" target="_blank"><span id="rec_banned">20</span>首不再播放</a>
+            </li>
+            </ul>"""
+        try:
+            user_record['played']=int(res.split(r'<span id="rec_played">')[1].split(r'</span>')[0])
+            user_record['liked']=int(res.split(r'<span id="rec_liked">')[1].split(r'</span>')[0])
+            user_record['banned']=int(res.split(r'<span id="rec_banned">')[1].split(r'</span>')[0])
+        except:
+            print res
         return user_record
 
     def __request_douban_fm__(self, params):
