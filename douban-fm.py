@@ -380,7 +380,7 @@ class DOUBAN_DLG(QtGui.QMainWindow):
         public_time = self.playing_song['public_time'].decode('utf8')
         pic_url = self.playing_song['picture'].decode('utf8')
         try:
-            print sid, title, atrist
+            print sid, title, artist
         except:
             pass
 

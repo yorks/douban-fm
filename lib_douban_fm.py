@@ -140,6 +140,9 @@ class DOUBAN_FM(object):
         verification_page = conn.read()
         conn.close()
         #print verification_page
+        fw=open('verification_page.html', 'wb')
+        fw.write(verification_page)
+        fw.close()
         verification_img_url = re.findall(r'<img id="captcha_image" src="(.*)" alt="captcha" class="captcha_image"/>', verification_page, re.M)[0]
         # <input type="hidden" name="captcha-id" value="uLjvQQy5OfUxjLZ4BwAmo1i1"/>
         self.captcha_id = re.findall(r' name="captcha-id" value="(.*)"/>', verification_page, re.M)[0]
@@ -158,7 +161,8 @@ class DOUBAN_FM(object):
 
     def get_channel_list(self):
         channel_list=[]
-        url='http://douban.fm/'
+        #url='http://douban.fm/'
+        url='http://www.douban.com/j/app/radio/channels'
         headers = dict(self.fm_headers)
         try:
             req = urllib2.Request(url=url, headers=headers)
@@ -166,16 +170,21 @@ class DOUBAN_FM(object):
             res = conn.read()
         except:
             pass
-        #try:
-        #    print res.decode('utf-8')
-        #except:
-        #    pass
-        conn.close()
-        if res.find('channels:') != -1:
+        try:
+            print res.decode('utf-8')
+            #fw=open('douban.fm.log','a')
+            #fw.write(res)
+            #fw.close()
+        except:
+            pass
+        if conn:
+            conn.close()
+        if res.find('channels') != -1:
             try:
-                channels = res.split("channels: '")[1].strip().split(r"'")[0].strip()
-                channels = urllib.unquote(channels)
-                self.channel_list = eval(channels)
+                #channels = res.split("channels: '")[1].strip().split(r"'")[0].strip()
+                #channels = urllib.unquote(channels)
+                self.channel_list=eval(res)['channels']
+                #self.channel_list = eval(channels)
                 i=0
                 for channel in self.channel_list:
                     if not channel.has_key('seq_id'):
