@@ -51,13 +51,14 @@ class DOUBAN_FM(object):
                  'Accept':'text/html, application/xhtml+xml, */*',
                  'Host':'www.douban.com',
                  'Connection':'Keep-Alive',
-                 'Accept-Language':'zh-CN'
-                 #'Cookie':'bid="Etpoyx3j0BA"; ac="1304248680"'
+                 'Accept-Language':'zh-CN',
+                 'Cookie':'bid="Etpoyx3j0BA"; ac="1304248680"'
                 }
         req = urllib2.Request(url=url, headers=headers)
         conn = urllib2.urlopen(req)
         #print conn.code
         header = str(conn.info())
+        print header
         #Server: nginx
         #Content-Type: text/html; charset=utf-8
         #Connection: close
@@ -69,7 +70,10 @@ class DOUBAN_FM(object):
         #Set-Cookie: bid="uT+Ovu6cadI"; path=/; domain=.douban.com; expires=Thu, 01-Jan-2012 00:00:00 GMT
         #Set-Cookie: ll="None"; path=/; domain=.douban.com; expires=Thu, 01-Jan-2012 00:00:00 GMT
         #Date: Sat, 14 May 2011 14:35:39 GMT
-        self.bid = header.split(r'Set-Cookie:')[1].split(r'bid="')[1].split('";')[0]
+        try:
+            self.bid = header.split(r'Set-Cookie:')[1].split(r'bid="')[1].split('";')[0]
+        except:
+            self.bid = "Etpoyx3j0BA"
         #print self.bid
 
 
@@ -164,6 +168,8 @@ class DOUBAN_FM(object):
         #url='http://douban.fm/'
         url='http://www.douban.com/j/app/radio/channels'
         headers = dict(self.fm_headers)
+        conn=None
+        res=""
         try:
             req = urllib2.Request(url=url, headers=headers)
             conn=urllib2.urlopen(req)
@@ -239,7 +245,7 @@ class DOUBAN_FM(object):
         r_str=get_random_num_char(10)
         type_ = params['type_']
         channel = params['channel']
-        url='http://douban.fm/j/mine/playlist?type=%s&channel=%d&r=%s'% (type_, channel, r_str)
+        url='http://douban.fm/j/mine/playlist?type=%s&channel=%d&r=%s&from=mainsite'% (type_, channel, r_str)
         if params['song_id'] :
             url = url + '&sid=%s'% params['song_id']
         if params['history']:
@@ -262,14 +268,17 @@ class DOUBAN_FM(object):
         conn=urllib2.urlopen(req)
         res = conn.read()
         conn.close()
-        #try:
-        #    print res.decode('utf-8')
-        #except:
-        #    pass
+        try:
+            print res.decode('utf-8')
+        except:
+            pass
         return res
 
     def __parse_json_song_list_res__(self, res):
         song_list=[]
+        res = res.replace(':false',':False')
+        res = res.replace(':true',':True')
+        print res
         json_dict = eval(res)
         result = int(json_dict['r'])
         if result == 0 :
