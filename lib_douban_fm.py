@@ -209,6 +209,23 @@ class DOUBAN_FM(object):
 
     def get_user_record(self):
         user_record={'played':0, 'liked':0, 'banned':0}
+        url = 'http://douban.fm/j/check_loggedin'
+        res = self.__request_douban_fm__(params=None, url=url)
+        res = res.replace(':false',':False')
+        res = res.replace(':true',':True')
+        res = res.replace(':null', ':None')
+        res_dict = eval(res)
+        try:
+            user_record['played'] = res_dict['user_info']['play_record']['played']
+            user_record['liked']  = res_dict['user_info']['play_record']['liked']
+            user_record['banned'] = res_dict['user_info']['play_record']['banned']
+            return user_record
+        except Exception, e:
+            print "get_user_record cannot parse http://douban.fm/j/check_loggedin res."
+            print str(e)
+
+        ## if above false, user html code decode.
+
         if not self.uid:
             return user_record
         url='http://douban.fm/mine?type=played'
@@ -241,16 +258,18 @@ class DOUBAN_FM(object):
             print res
         return user_record
 
-    def __request_douban_fm__(self, params):
+    def __request_douban_fm__(self, params, url=None):
         r_str=get_random_num_char(10)
-        type_ = params['type_']
-        channel = params['channel']
-        url='http://douban.fm/j/mine/playlist?type=%s&channel=%d&r=%s&from=mainsite'% (type_, channel, r_str)
-        if params['song_id'] :
-            url = url + '&sid=%s'% params['song_id']
-        if params['history']:
-            h = '|'.join(params['history'])
-            url = url + '&h=%s'% h
+        if not url:
+            type_ = params['type_']
+            channel = params['channel']
+            url='http://douban.fm/j/mine/playlist?type=%s&channel=%d&r=%s&from=mainsite'% (type_, channel, r_str)
+            if params['song_id'] :
+                url = url + '&sid=%s'% params['song_id']
+            if params['history']:
+                h = '|'.join(params['history'])
+                url = url + '&h=%s'% h
+
         print "requtest_douban:", url
         headers = {
                     'Host':'douban.fm',
@@ -278,6 +297,7 @@ class DOUBAN_FM(object):
         song_list=[]
         res = res.replace(':false',':False')
         res = res.replace(':true',':True')
+        res = res.replace(':null', ':None')
         print res
         json_dict = eval(res)
         result = int(json_dict['r'])
