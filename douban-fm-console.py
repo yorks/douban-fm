@@ -16,7 +16,6 @@ sys.path.append('/home/yorks/python/lib/python2.5/site-packages')
 #import mp3player
 #import audio_player
 import mplayer
-import images_rc
 import secure_str
 
 DOUBAN_HOME=os.path.expanduser('~/.douban.fm/')
