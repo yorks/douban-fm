@@ -4,12 +4,13 @@ import os
 import subprocess
 
 class MPLAYER(object):
-    def __init__(self, fifo_path='/tmp/py-mplayer-fifo.sock', bin_path='mplayer', volume=30):
-        self.file_path = None
-        self.next_file = None
-        self.volume    = volume
-        self.proc      = None
-        self.fifo_path = fifo_path
+    def __init__(self, fifo_path='/tmp/py-mplayer-fifo.sock', bin_path='mplayer', volume=30, debug=False):
+        self.file_path    = None
+        self.next_file    = None
+        self.volume       = volume
+        self.proc         = None
+        self.fifo_path    = fifo_path
+        self.fifo_isfirst = True # flag, for first cache one line to fifo sock ??
         self.args = [ bin_path,
                 '-nolirc',
                 '-nosub',
@@ -17,26 +18,49 @@ class MPLAYER(object):
                 '-noconsolecontrols',
                 '-softvol', 'volume=%d'% self.volume,
                 '-slave','-input','file=%s' % self.fifo_path,]
+        self.debug = debug
         self.status = 'init' # init, load, playing, pause, stop
 
     def _mkfifo(self):
+        """
+           mkfifo the sock file is not exist!
+        """
         if os.path.exists(self.fifo_path):
             print "fifo is already exist! skip mkfifo it!"
             return 202
         else:
             os.mkfifo(self.fifo_path)
             return 200
+
     def _init_fifo(self):
-        pass
+        """
+           inital the fifo sock, send the first cmd to fifo sock when first start play!
+           because mplayer input file must do any command before this.
+        """
+        if not self.fifo_isfirst:
+            return
+
+        if not os.path.exists(self.fifo_path):
+            self._mkfifo()
+        fw = open(self.fifo_path, 'w')
+        fw.write('\n')
+        fw.flush()
+        fw.close()
+        self.fifo_isfirst = False
+
 
     def _write_fifo(self, cmd):
-        print cmd
+        """
+            send cmd to the fifo sock, if mplayer
+            not running restart it autoly when loaded file_path.
+        """
+        if self.debug:print cmd
         cmd = cmd + "\n"
         if not os.path.exists( self.fifo_path ):
             self._mkfifo()
         if not self.is_alive( auto_restart=True ):
-            print "mplayer is not running!!!"
-            #return False
+            print "mplayer is not running and file not load!!!"
+            return False
         with open(self.fifo_path, 'w') as fw:
             fw.write(cmd)
             fw.flush()
@@ -81,7 +105,7 @@ class MPLAYER(object):
         if self._write_fifo( cmd ):
             self.volume = n
             self._update_args_volume()
-            print self.args
+            if self.debug:print self.args
             return 200
         else:
             return 600
@@ -111,7 +135,7 @@ class MPLAYER(object):
         if not os.path.isfile( file_path ):
             print "file not load, for the file not exist or not a file!"
             return 404
-        if os.path.exists( self.fifo_path ):
+        if not os.path.exists( self.fifo_path ):
             self._mkfifo()
         self.file_path = file_path
         self.status = 'load'
@@ -121,13 +145,15 @@ class MPLAYER(object):
             return 200
 
     def new_play(self):
-        print "new_play!!!"
+        if self.debug:print "new_play!!!"
         if self.file_path:
             self.proc = subprocess.Popen(self.args + [self.file_path])
+            print self.volume
+            self.set_volume(self.volume)
             self.status = 'playing'
 
     def auto_restart(self):
-        print "mplayer is not running, auto restarting!!!"
+        if self.debug:print "mplayer is not running, auto restarting!!!"
         self.new_play()
 
     def play(self):
@@ -136,13 +162,14 @@ class MPLAYER(object):
             return 401
         if self.proc is None: # first play
             self.new_play()
+            self._init_fifo()
         elif self.proc.poll() is not None: # mplayer is terminaled, restart it autoly
             self.auto_restart()
         else:
             if self.status == 'pause':
                 self.unpause()
             elif self.status == 'stop':
-                self.play_next()
+                self.new_play()
             elif self.status == 'playing':
                 print "is playing %s, donot call play again!"% self.file_path
                 return 402
@@ -160,6 +187,7 @@ class MPLAYER(object):
             self.proc = None
 
         self.status = 'stop'
+
     def quit(self):
         self.stop()
         if os.path.exists( self.fifo_path ):

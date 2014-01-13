@@ -36,19 +36,20 @@ class DOUBAN(object):
         self.account = ''
         self.password = ''
         self.islogined = False
+        self.volume = 30
+        self.max_volume = 100
 
-        self.player = mplayer.MPLAYER()
+        self.player = mplayer.MPLAYER(volume=self.volume)
         self.playing_clip = None
         self.playing_song = None # song_inf dict
         self.song_list = []
         self.channel_list = []
-        self.current_channel = -3
+        self.current_channel = 0
         self.history = []
         self.user_record={}
         self.check_song_list_t = None
         self.check_song_end_t = None
         self.check_cache_t = None
-        self.max_volume = 100
         self.fm = None
 
         self.like = False
@@ -97,7 +98,7 @@ class DOUBAN(object):
         if not self.fm:
             self.fm = lib_douban_fm.DOUBAN_FM()
         if self.fm.captcha_id:
-            verification_code = raw_input('code')
+            verification_code = raw_input('pls input verify code:')
             is_login = self.fm.login( self.account, self.password, verification_code )
         else:
             is_login = self.fm.login(self.account, self.password)
@@ -171,11 +172,12 @@ class DOUBAN(object):
         while not self.song_list: # cannot get song_list, always try to get...
             self.song_list = self.fm.get_song_list(self.current_channel, self.history)
         self.playing_song = self.song_list[0]
-        print self.playing_song
+        #print self.playing_song
         try:
             self.mp3_play(self.playing_song)
         except:
             print "Cannot play this song.."
+            print self.playing_song
             sys.exit(1)
 
         del self.song_list[0]
@@ -238,6 +240,7 @@ class DOUBAN(object):
     def set_volume(self, value):
         if self.playing_clip:
             self.playing_clip.set_volume(value)
+            self.volume = value
         else:
             pass
 
@@ -265,9 +268,19 @@ class DOUBAN(object):
         like        = self.playing_song['like']
         like_human = ''
         if like == 1:
+            self.like = True
             like_human = '红心'
         pic_url = self.playing_song['picture'].decode('utf8')
+        print "volume: %d"% self.volume
+        print "channel: %d"% self.current_channel,
+        if not self.channel_list:
+            self.get_channel_list()
+        for channel in self.channel_list:
+            if channel['channel_id'] == self.current_channel:
+                print channel['name']
+
         try:
+            print "Playing:",
             print sid, title, artist, like_human
         except:
             pass
@@ -327,7 +340,7 @@ class DOUBAN(object):
         if isload != 200:
             raise "cannot load this song!"
         self.playing_clip=self.player
-        #self.set_volume()
+        self.set_volume(self.volume)
         self.playing_clip.play()
         #self.set_playing_ui()
 
@@ -343,6 +356,10 @@ class DOUBAN(object):
     def check_song_end(self):
         while True:
             time.sleep(1)
+            if not self.playing_clip:
+                time.sleep(0.5)
+                continue
+
             if not self.playing_clip.is_alive() and self.playing_clip.status == 'stop':
                 self.play_next()
 
@@ -445,10 +462,12 @@ class DOUBAN(object):
             if self.playing_song['sid'] not in self.banned_list:
                 self.banned_list.append(self.playing_song['sid'])
             self.play_next()
-    def change_channel(self, c):
+    def change_channel(self, c, isgonow=False):
         c = int( c )
         self.current_channel = c
-        self.play_next()
+        if isgonow:
+            self.song_list = []
+            self.play_next()
 
     def open_album_url(self):
         if self.playing_song:
@@ -589,8 +608,8 @@ def print_help_msg():
     print " -------------- 'l' for like the song  ----------------------"
     print " -------------- 'v' for set volume  -------------------------"
     print " -------------- 'q' for quit this program      --------------"
+    print " -------------- 'i' for info (playing && this help) ---------"
     print " -------------- 'h' for Help (this HelpMessage)--------------"
-    print " -------------- 'a' for About this program ------------------"
 
 if __name__ == "__main__":
     fm = DOUBAN()
@@ -601,37 +620,45 @@ if __name__ == "__main__":
     while 1:
         time.sleep(0.1)
         try:
+            print_help_msg()
             command = raw_input('>>>')
         except:
             fm.quit()
             break
         if command == 'n':
-            print "next"
             fm.play_next()
         elif command == 's':
-            print "skip"
             fm.play_next()
         elif command == 'b':
-            print "ban"
             fm.ban_song()
         elif command == 'l':
             print "like"
         elif command == 'c':
             print "change channel"
-            fm.get_channel_list()
+            if not fm.channel_list:
+                fm.get_channel_list()
             for channel in fm.channel_list:
                 print channel['name'], channel['channel_id']
             c=int(raw_input('pls input the channel id:'))
-            fm.change_channel(c)
+            isgonow=int(raw_input('is go this channel immediately? 1:0'))
+            fm.change_channel(c, isgonow)
 
         elif command == 'q':
             print "quit"
             fm.quit()
             break
         elif command == 'v':
-            v = int(raw_input('pls input the volume(0-100):'))
+            v = int(raw_input('pls input the volume(0-100)%d:'% fm.volume))
+            if v<0 or v > 100:
+                print "must 0 < INPUT <100"
+                continue
             fm.set_volume(v)
         elif command == 'h':
             print_help_msg()
+        elif command == 'i':
+            fm.set_playing_ui()
+        else:
+            pass
+
 
 
