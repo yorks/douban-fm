@@ -12,12 +12,13 @@ import re
 
 
 class DOUBAN_FM(object):
-    def __init__(self):
+    def __init__(self, debug=False):
         self.bid = None
         self.dbcl2 = None
         self.uid = None
         self.verification_login_url=None
         self.captcha_id = None
+        self.debug = debug
 
         self.channel_list = []
         self.douban_headers={}
@@ -58,7 +59,8 @@ class DOUBAN_FM(object):
         conn = urllib2.urlopen(req)
         #print conn.code
         header = str(conn.info())
-        print header
+        if self.debug:
+            print header
         #Server: nginx
         #Content-Type: text/html; charset=utf-8
         #Connection: close
@@ -177,7 +179,7 @@ class DOUBAN_FM(object):
         except:
             pass
         try:
-            print res.decode('utf-8')
+            res.decode('utf-8')
             #fw=open('douban.fm.log','a')
             #fw.write(res)
             #fw.close()
@@ -201,10 +203,12 @@ class DOUBAN_FM(object):
 
         like_seq_id = len(self.channel_list)
         LIKE_CHANNEL={"name": u"Red_Heart", "seq_id": like_seq_id, "abbr_en": "My", "channel_id": -3,"name_en": "Personal Radio"}
-        print self.uid
+        if self.debug:
+            print self.uid
         if self.uid: # logined user add red heart channel
             self.channel_list.append(LIKE_CHANNEL)
-        print self.channel_list
+        if self.debug:
+            print self.channel_list
         return self.channel_list
 
     def get_user_record(self):
@@ -270,7 +274,8 @@ class DOUBAN_FM(object):
                 h = '|'.join(params['history'])
                 url = url + '&h=%s'% h
 
-        print "requtest_douban:", url
+        if self.debug:
+            print "requtest_douban:", url
         headers = {
                     'Host':'douban.fm',
                     'User-Agent':'Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
@@ -288,7 +293,10 @@ class DOUBAN_FM(object):
         res = conn.read()
         conn.close()
         try:
-            print res.decode('utf-8')
+            res.decode('utf-8')
+            if self.debug:
+                print res.decode('utf-8')
+
         except:
             pass
         return res
@@ -298,7 +306,8 @@ class DOUBAN_FM(object):
         res = res.replace(':false',':False')
         res = res.replace(':true',':True')
         res = res.replace(':null', ':None')
-        print res
+        if self.debug:
+            print res
         json_dict = eval(res)
         result = int(json_dict['r'])
         if result == 0 :

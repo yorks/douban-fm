@@ -148,7 +148,6 @@ class MPLAYER(object):
         if self.debug:print "new_play!!!"
         if self.file_path:
             self.proc = subprocess.Popen(self.args + [self.file_path])
-            print self.volume
             self.set_volume(self.volume)
             self.status = 'playing'
 
