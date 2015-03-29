@@ -16,7 +16,9 @@ class MPLAYER(object):
                 '-nosub',
                 '-really-quiet',
                 '-noconsolecontrols',
-                '-softvol', 'volume=%d'% self.volume,
+                '-softvol',
+                '-volume',
+                '%d'% self.volume,
                 '-slave','-input','file=%s' % self.fifo_path,]
         self.debug = debug
         self.status = 'init' # init, load, playing, pause, stop
@@ -67,10 +69,10 @@ class MPLAYER(object):
         return True
     def _update_args_volume(self):
         old=''
-        i = 6
-        new='volume=%d'% self.volume
+        i = 7
+        new='%d'% self.volume
         for arg in self.args:
-            if arg.startswith('volume='):
+            if arg.isdigit():
                 old = arg
         if old:
             i = self.args.index( old )
