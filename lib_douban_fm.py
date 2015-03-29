@@ -308,7 +308,13 @@ class DOUBAN_FM(object):
         res = res.replace(':null', ':None')
         if self.debug:
             print res
-        json_dict = eval(res)
+        try:
+            json_dict = eval(res)
+        except Exception, e:
+            print res
+            print e
+            return []
+
         result = int(json_dict['r'])
         if result == 0 :
             play_list=json_dict['song']
