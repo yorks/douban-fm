@@ -21,6 +21,7 @@ import secure_str
 DOUBAN_HOME=os.path.expanduser('~/.douban.fm/')
 SAVE_MP3_DIR=os.path.expanduser('~/.douban.fm/mp3/')
 ALBUM_PIC_DIR=os.path.expanduser('~/.douban.fm/album_pic')
+TMP_DIR   = "/tmp/.douban.mp3/"
 CONF_FILE_PATH=os.path.join(DOUBAN_HOME, '.conf')
 LIKED_LIST_FILE_PATH=os.path.join(DOUBAN_HOME, '.liked')
 
@@ -55,7 +56,7 @@ class DOUBAN(object):
         self.cache_max_size = CACHE_MAX_SIZE
         self.cache_dir = SAVE_MP3_DIR
         self.local_dir = SAVE_MP3_DIR
-        self.tmp_dir   = "/tmp/.douban.mp3/"
+        self.tmp_dir   = TMP_DIR
         self.playing_file_path = None
 
         self.conf = CONFIG()
@@ -589,7 +590,7 @@ class CONFIG(object):
         self.cf_file_path = file_path
         # default value
         self.cf_info = { 'douban':{'username':'', 'password':''},
-                'client':{'max_cache_size':CACHE_MAX_SIZE, 'tmp_dir':'/tmp/.doubanfm/', 'local_mp3_dir':SAVE_MP3_DIR, 'cache_dir':SAVE_MP3_DIR},
+                'client':{'max_cache_size':CACHE_MAX_SIZE, 'tmp_dir':TMP_DIR, 'local_dir':SAVE_MP3_DIR, 'cache_dir':SAVE_MP3_DIR},
                 'shortcut':{'login':'RETURN','quit':'ESC', 'play_pause':'P', 'next':'N', 'like':'L', 'ban':'B', 'setting':'S' } }
         self.need_reload=True
         self.cf = ConfigParser.SafeConfigParser()
