@@ -46,7 +46,7 @@ class DOUBAN_FM(object):
          get bid from index page Cookie
          set bid to self.bid
         """
-        url='http://www.douban.com/'
+        url='https://www.douban.com/'
         headers={
                  'User-Agent':'Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
                  'Accept':'text/html, application/xhtml+xml, */*',
@@ -168,7 +168,7 @@ class DOUBAN_FM(object):
     def get_channel_list(self):
         channel_list=[]
         #url='http://douban.fm/'
-        url='http://www.douban.com/j/app/radio/channels'
+        url='https://www.douban.com/j/app/radio/channels'
         headers = dict(self.fm_headers)
         conn=None
         res=""
@@ -213,7 +213,7 @@ class DOUBAN_FM(object):
 
     def get_user_record(self):
         user_record={'played':0, 'liked':0, 'banned':0}
-        url = 'http://douban.fm/j/check_loggedin'
+        url = 'https://douban.fm/j/check_loggedin'
         res = self.__request_douban_fm__(params=None, url=url)
         res = res.replace(':false',':False')
         res = res.replace(':true',':True')
@@ -233,7 +233,7 @@ class DOUBAN_FM(object):
         if not self.uid:
             return user_record
         url='http://douban.fm/mine?type=played'
-        url='http://douban.fm/'
+        url='https://douban.fm/'
         headers = dict(self.fm_headers)
         if headers['Keep-Alive']:
             del headers['Keep-Alive']
@@ -267,7 +267,7 @@ class DOUBAN_FM(object):
         if not url:
             type_ = params['type_']
             channel = params['channel']
-            url='http://douban.fm/j/mine/playlist?type=%s&channel=%d&r=%s&from=mainsite'% (type_, channel, r_str)
+            url='https://douban.fm/j/mine/playlist?type=%s&channel=%d&r=%s&from=mainsite'% (type_, channel, r_str)
             if params['song_id'] :
                 url = url + '&sid=%s'% params['song_id']
             if params['history']:
@@ -376,7 +376,7 @@ class DOUBAN_FM(object):
         res = self.__request_douban_fm__( params )
 
     def unban_song(self, song_id):
-        url="http://douban.fm/j/song/%s/undo_ban"% song_id
+        url="https://douban.fm/j/song/%s/undo_ban"% song_id
         #headers = self.fm_headers
         pass
 
