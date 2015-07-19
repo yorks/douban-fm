@@ -12,11 +12,12 @@ import os
 import ConfigParser
 
 
-sys.path.append('/home/yorks/python/lib/python2.5/site-packages')
+#sys.path.append('/home/yorks/python/lib/python2.5/site-packages')
 #import mp3player
 #import audio_player
 import mplayer
 import secure_str
+DEBUG=False
 
 DOUBAN_HOME=os.path.expanduser('~/.douban.fm/')
 SAVE_MP3_DIR=os.path.expanduser('~/.douban.fm/mp3/')
@@ -68,8 +69,9 @@ class DOUBAN(object):
 
     def parse_conf(self):
         if os.path.isfile(CONF_FILE_PATH):
-            account = self.cf_info['douban']['username']
+            account  = self.cf_info['douban']['username']
             password = self.cf_info['douban']['password']
+            cookie   = self.cf_info['douban']['cookie']
             if password:
                 try:
                     password = secure_str.decode( password )
@@ -111,9 +113,11 @@ class DOUBAN(object):
         if not self.password:
             self.account = raw_input('account:')
             self.password = raw_input('password:')
+            self.conf.set_option('douban','username', self.account)
+            self.conf.set_option('douban','password', secure_str.encode(self.password))
 
         if not self.fm:
-            self.fm = lib_douban_fm.DOUBAN_FM()
+            self.fm = lib_douban_fm.DOUBAN_FM( debug=DEBUG )
         if self.fm.captcha_id:
             verification_code = raw_input('pls input verify code:')
             is_login = self.fm.login( self.account, self.password, verification_code )
@@ -422,7 +426,7 @@ class DOUBAN(object):
         while True:
             time.sleep(10)
             if len(self.song_list) <= 1 :
-                self.song_list = self.fm.get_song_list(self.current_channel, self.history)
+                self.song_list.extend( self.fm.get_song_list(self.current_channel, self.history) )
             if len(self.song_list) >= 1:
                 #print "pre get mp3 file %s"% self.song_list[0]['url']
                 self.get_mp3_file(self.song_list[0])
@@ -589,7 +593,7 @@ class CONFIG(object):
     def __init__(self, file_path=CONF_FILE_PATH):
         self.cf_file_path = file_path
         # default value
-        self.cf_info = { 'douban':{'username':'', 'password':''},
+        self.cf_info = { 'douban':{'username':'', 'password':'', 'cookie':''},
                 'client':{'max_cache_size':CACHE_MAX_SIZE, 'tmp_dir':TMP_DIR, 'local_dir':SAVE_MP3_DIR, 'cache_dir':SAVE_MP3_DIR},
                 'shortcut':{'login':'RETURN','quit':'ESC', 'play_pause':'P', 'next':'N', 'like':'L', 'ban':'B', 'setting':'S' } }
         self.need_reload=True
